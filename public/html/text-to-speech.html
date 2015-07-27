@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<div style="width: 100%; text-align: center;">
+    <input type="textarea" id="text" style="width: 500px; height: 300px;"/>
+    <button id="readText">Read</button>
+</div>
+<hr/>
+
+<script type="text/javascript">
+
+    function speakText(text) {
+        var sourceElem = document.createElement("source");
+        sourceElem.setAttribute("src", "/tts/" + encodeURIComponent(text));
+        sourceElem.setAttribute("type", "audio/mpeg");
+        var audioElem = document.createElement("audio");
+        audioElem.setAttribute("autoplay", "true");
+        audioElem.setAttribute("preload", "auto");
+        audioElem.appendChild(sourceElem);
+        document.body.appendChild(audioElem);
+    }
+
+    document.getElementById("readText").addEventListener("click", function(e) {
+        speakText(document.getElementById("text").value);
+    }, false);
+
+
+</script>
+
+</body>
+</html>

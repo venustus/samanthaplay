@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<div style="width: 100%; text-align: center;">
+    <input type="text" id="url" style="width: 500px;"/>
+    <button id="readUrl">Read</button>
+</div>
+<hr/>
+<div id="iframeholder" style="width: 100%;">
+</div>
+
+<script type="text/javascript">
+
+    function speakText(url) {
+        var audioElem = document.createElement("audio");
+        audioElem.setAttribute("autoplay", "true");
+        audioElem.setAttribute("preload", "auto");
+        audioElem.setAttribute("src", "/uts/" + encodeURIComponent(url));
+        document.body.appendChild(audioElem);
+    }
+
+    document.getElementById("readUrl").addEventListener("click", function(e) {
+        var ifr = document.createElement("iframe");
+        ifr.setAttribute("src", document.getElementById("url").value);
+        ifr.setAttribute("width", document.getElementById("iframeholder").offsetWidth);
+        ifr.setAttribute("height", "600");
+        document.getElementById("iframeholder").appendChild(ifr);
+        speakText(document.getElementById("url").value);
+    }, false);
+</script>
+
+</body>
+</html>
