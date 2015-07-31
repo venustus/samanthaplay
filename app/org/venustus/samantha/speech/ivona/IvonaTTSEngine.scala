@@ -3,6 +3,7 @@ package org.venustus.samantha.speech.ivona
 import java.io.InputStream
 
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider
+import com.google.inject.Singleton
 import com.ivona.services.tts.IvonaSpeechCloudClient
 import com.ivona.services.tts.model.{Voice, Input, CreateSpeechRequest}
 import org.venustus.samantha.speech.SpeechSynthesisEngine
@@ -10,6 +11,7 @@ import org.venustus.samantha.speech.SpeechSynthesisEngine
 /**
  * Created by venkat on 26/07/15.
  */
+@Singleton
 class IvonaTTSEngine extends SpeechSynthesisEngine {
     private val speechCloudClient = new IvonaSpeechCloudClient(
         new ClasspathPropertiesFileCredentialsProvider("ivona/IvonaCredentials.properties"))
