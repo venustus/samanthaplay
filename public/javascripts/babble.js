@@ -34,10 +34,13 @@ var BABBLE = (function(){
 
 		var audios = document.getElementsByTagName("audio");
 		var videos = document.getElementsByTagName("video");
-		var media = audios.concat(videos);
 		
-		for(var i=0; i<media.length;i++){
-			media[i].pause();
+		for(var i=0; i<audios.length;i++){
+			audios[i].pause();
+		}
+		
+		for(var i=0; i<videos.length;i++){
+			videos[i].pause();
 		}
 	}
 	
