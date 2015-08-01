@@ -19,7 +19,7 @@ var BABBLE = (function(){
 	*/
 	
 	function log(message, force){
-		force ||= false;
+		force = force || false;
 		if(DEBUG || force){
 			console.log("BABBLE: " + message);
 		}
