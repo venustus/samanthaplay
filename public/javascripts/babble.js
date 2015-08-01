@@ -4,7 +4,7 @@ var BABBLE = (function(){
 	
 	// constants
 	var BABBBLE_AUDIO_IDENTIFIER = "owner:BABBLE";
-	var BABBLE_SERVER_SCRIPT_PREFIX = "http://localhost:9000/utp/";
+	var BABBLE_SERVER_SCRIPT_PREFIX = "http://ec2-52-27-159-241.us-west-2.compute.amazonaws.com/utp/";
 	var DEBUG = true;
 	
 	var paragraphs = [];
