@@ -34,7 +34,7 @@ var BABBLE = (function(){
 
 		var audios = document.getElementsByTagName("audio");
 		var videos = document.getElementsByTagName("video");
-		var media = Array.concat(audios, videos);
+		var media = audios.concat(videos);
 		
 		for(var i=0; i<media.length;i++){
 			media[i].pause();
