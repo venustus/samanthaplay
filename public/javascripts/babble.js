@@ -4,7 +4,7 @@ var BABBLE = (function(){
 	
 	// constants
 	var BABBBLE_AUDIO_IDENTIFIER = "owner:BABBLE";
-	var BABBLE_SERVER_SCRIPT_PREFIX = "http://ec2-52-27-159-241.us-west-2.compute.amazonaws.com/utp/";
+	var BABBLE_SERVER_SCRIPT_PREFIX = "http://localhost:9000/utp/";
 	var DEBUG = true;
 	
 	var paragraphs = [];
@@ -34,7 +34,7 @@ var BABBLE = (function(){
 
 		var audios = document.getElementsByTagName("audio");
 		var videos = document.getElementsByTagName("video");
-		
+
 		for(var i=0; i<audios.length;i++){
 			audios[i].pause();
 		}
@@ -125,8 +125,8 @@ var BABBLE = (function(){
 	  							}
 	 */
 	function prepareAudioForParagraph(paragraph){
-		var audioElem = getAudioTag(paragraph.audioURL);
-		var paragraphElem = document.evaluate(paragraph.xPath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+		var audioElem = getAudioTag(paragraph.audioUrl);
+		var paragraphElem = document.evaluate(paragraph.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 		paragraphElem.appendChild(audioElem);
 		paragraph.audioElem = audioElem;
 	}
