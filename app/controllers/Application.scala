@@ -3,7 +3,7 @@ package controllers
 import java.net.URLDecoder
 import javax.inject.Inject
 
-import com.gravity.goose.{Configuration, Goose}
+import com.gravity.goose.{Article, Paragraph}
 import org.venustus.samantha.speech.SpeechSynthesisEngine
 import org.venustus.samantha.speech.articles.ArticleExtractor
 import play.api.libs.iteratee.Enumerator
@@ -11,12 +11,33 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
 
+import play.api.libs.json._
+
+
 import scala.concurrent.Future
 
 class Application @Inject() (ws: WSClient, sse: SpeechSynthesisEngine, ae: ArticleExtractor) extends Controller {
 
     def index = Action {
         Ok(views.html.index("Your new application is ready."))
+    }
+
+    def utp(url: String) = Action.async {
+        implicit val paragraphWrites = new Writes[Paragraph] {
+            def writes(p: Paragraph) = Json.obj(
+                "xpath" -> p.xpath,
+                "text" -> p.text
+            )
+        }
+        implicit val articleWrites = new Writes[Article] {
+            def writes(a: Article) = Json.obj(
+                "paragraphs" -> a.paragraphs,
+                "title" -> a.title
+            )
+        }
+        Future { ae extractContent (url) } map {
+            case article => Ok("BABBLE.kickStart(" + Json.toJson(article).toString + ")").withHeaders("Content-Type" -> "application/javascript")
+        }
     }
 
     def tts(text: String) = Action {

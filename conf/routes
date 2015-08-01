@@ -9,6 +9,8 @@ GET        /tts/:text           @controllers.Application.tts(text: String )
 
 GET        /uts/:url            @controllers.Application.uts(url: String)
 
+GET        /utp/:url            @controllers.Application.utp(url: String)
+
 # Map static resources from the /public folder to the /assets URL path
 GET        /assets/*file        controllers.Assets.at(path="/public", file)
 
