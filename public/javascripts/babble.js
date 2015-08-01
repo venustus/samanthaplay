@@ -5,7 +5,7 @@ var BABBLE = (function(){
 	// constants
 	var BABBBLE_AUDIO_IDENTIFIER = "owner:BABBLE";
 	var BABBLE_SERVER_SCRIPT_PREFIX = "http://ec2-52-27-159-241.us-west-2.compute.amazonaws.com/utp/";
-	var DEBUG = false;
+	var DEBUG = true;
 	
 	var paragraphs = [];
 	var status = {
@@ -18,8 +18,9 @@ var BABBLE = (function(){
 	* Additionally it also takes care of prepending log messages with BABBLE
 	*/
 	
-	function log(message){
-		if(DEBUG){
+	function log(message, force){
+		force ||= false;
+		if(DEBUG || force){
 			console.log("BABBLE: " + message);
 		}
 	}
@@ -29,7 +30,7 @@ var BABBLE = (function(){
 	*/
 	
 	function pauseAllMedia(){
-		log("Pausing All Media");
+		log("Pausing All Media", true);
 
 		var audios = document.getElementsByTagName("audio");
 		var videos = document.getElementsByTagName("video");
@@ -159,7 +160,7 @@ var BABBLE = (function(){
 	*/
 	
 	function kickStart(contentMetaDataMap){
-		log("kick started!");
+		log("kick started!", true);
 		paragraphs = contentMetaDataMap.paragraphs;
 		
 		// create and embed audio tags into these paragraphs
