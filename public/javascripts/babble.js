@@ -3,9 +3,13 @@ var BABBLE = (function(){
 	'use strict';
 	
 	// constants
-	var BABBBLE_AUDIO_IDENTIFIER = "owner:BABBLE";
+	var BABBLE_AUDIO_IDENTIFIER = "owner:BABBLE";
+	var BABBLE_CONTENT_IDENTIFIER = "owner:BABBLE";
 	var BABBLE_SERVER_SCRIPT_PREFIX = "http://ec2-52-27-159-241.us-west-2.compute.amazonaws.com/utp/";
 	var DEBUG = true;
+	
+	// properties with USER prefix will be available for the end consumer to configure
+	var USER_NAVIGATE = true
 	
 	var paragraphs = [];
 	var status = {
@@ -45,6 +49,43 @@ var BABBLE = (function(){
 	}
 	
 	/**
+	* Highlights the current paragraph based on user preference set into variable USER_NAVIGATE
+	*/
+	function highlightCurrentParagraph(){
+		var paragraph = paragraphs[status.currentParagraphIndex];
+		if(USER_NAVIGATE){
+			var paragraphElem = document.evaluate(paragraph.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+			
+			var previousParagraphIndex = ((status.currentParagraphIndex - 1) < 0)? paragraphs.length-1: (status.currentParagraphIndex - 1);
+			
+			// TODO: fade out the previous paragraph
+			var previousParagraph = paragraphs[previousParagraphIndex];
+			var previousParagraphElem = document.evaluate(previousParagraph.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+			
+			// Rest the previous paragraph
+			previousParagraphElem.style.backgroundColor = "";
+			
+			// set the current paragraph's style
+			paragraphElem.style.backgroundColor = "yellow";
+		}
+		
+	}
+	
+	/**
+	* Unhighlights the current paragraph based on user preference set into variable USER_NAVIGATE
+	*/
+	function unHighlightCurrentParagraph(){
+		var paragraph = paragraphs[status.currentParagraphIndex];
+		if(USER_NAVIGATE){
+			var paragraphElem = document.evaluate(paragraph.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+			
+			// Rest the paragraph
+			paragraphElem.style.backgroundColor = "";			
+		}
+		
+	}
+	
+	/**
 	* plays the current paragraph FROM THE START
 	* NOTE: this function ensures that only one media (of the current paragraph) is being played at any given point in time
 	*/
@@ -57,6 +98,9 @@ var BABBLE = (function(){
 		
 		// plays the audio for the current paragraph
 		paragraphs[status.currentParagraphIndex].audioElem.play();
+		
+		// navigate user to the current paragraph
+		highlightCurrentParagraph();
 	}
 	
 	/**
@@ -71,7 +115,12 @@ var BABBLE = (function(){
 		status.currentParagraphIndex++;
 		
 		if(status.currentParagraphIndex >= paragraphs.length){
-				status.currentParagraphIndex = status.currentParagraphIndex % paragraphs.length;
+			// Do clean up
+			// unhighlight current paragraph
+			unHighlightCurrentParagraph();
+			
+			status.currentParagraphIndex = status.currentParagraphIndex % paragraphs.length;
+				
 		} else {
 			// FIXME: set this on a timeout
 			// play the new paragraph
@@ -89,7 +138,7 @@ var BABBLE = (function(){
 		elem.setAttribute("src", src);
 		
 		// this attribute helps us identify that it was added by BABBLE
-		elem.setAttribute("data", BABBBLE_AUDIO_IDENTIFIER);
+		elem.setAttribute("data", BABBLE_AUDIO_IDENTIFIER);
 		
 		// add call back to play the next audio
 		elem.addEventListener("ended", function(){
@@ -129,6 +178,18 @@ var BABBLE = (function(){
 		var paragraphElem = document.evaluate(paragraph.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 		paragraphElem.appendChild(audioElem);
 		paragraph.audioElem = audioElem;
+	}
+	
+	/**
+	* set data attribute for the tags modified by BABBLE
+	*/
+	
+	function tagParagraph(paragraph){
+		var paragraphElem = document.evaluate(paragraph.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+		
+		// this attribute helps us identify that it was added by BABBLE
+		elem.setAttribute("data", BABBLE_CONTENT_IDENTIFIER);
+		
 	}
 	
 	// Public Methods
