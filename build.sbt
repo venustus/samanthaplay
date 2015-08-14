@@ -20,6 +20,8 @@ libraryDependencies += "commons-io" % "commons-io" % "2.4"
 
 libraryDependencies += "commons-lang" % "commons-lang" % "2.6"
 
+libraryDependencies += "net.debasishg" %% "redisreact" % "0.7"
+
 libraryDependencies += specs2 % Test
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )

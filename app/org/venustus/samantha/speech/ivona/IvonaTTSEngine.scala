@@ -3,19 +3,17 @@ package org.venustus.samantha.speech.ivona
 import java.io.InputStream
 
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import com.ivona.services.tts.IvonaSpeechCloudClient
 import com.ivona.services.tts.model.{Voice, Input, CreateSpeechRequest}
 import org.venustus.samantha.speech.SpeechSynthesisEngine
+import play.api.Play
 
 /**
  * Created by venkat on 26/07/15.
  */
 @Singleton
-class IvonaTTSEngine extends SpeechSynthesisEngine {
-    private val speechCloudClient = new IvonaSpeechCloudClient(
-        new ClasspathPropertiesFileCredentialsProvider("ivona/IvonaCredentials.properties"))
-    speechCloudClient setEndpoint ("https://tts.eu-west-1.ivonacloud.com")
+class IvonaTTSEngine @Inject() (speechCloudClient: IvonaSpeechCloudClient) extends SpeechSynthesisEngine {
 
     override def synthesizeSpeech(text: String): InputStream = {
         val createSpeechRequest = new CreateSpeechRequest()

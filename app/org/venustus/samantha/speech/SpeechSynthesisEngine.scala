@@ -1,6 +1,6 @@
 package org.venustus.samantha.speech
 
-import java.io.{InputStream, OutputStream}
+import java.io.InputStream
 
 import com.google.inject.ImplementedBy
 import org.venustus.samantha.speech.ivona.IvonaTTSEngine
