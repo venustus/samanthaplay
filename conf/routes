@@ -5,7 +5,9 @@
 # Home page
 GET        /                    @controllers.Application.index
 
-GET        /tts/:text           @controllers.Application.tts(text: String )
+GET        /tts/:text           @controllers.Application.tts(text: String)
+
+GET        /ttswid/:id          @controllers.Application.ttswid(id: String)
 
 GET        /uts/:url            @controllers.Application.uts(url: String)
 
