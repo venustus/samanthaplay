@@ -225,7 +225,8 @@ var BABBLE = (function(){
 	
 	function kickStart(contentMetaDataMap){
 		log("kick started!", true);
-		paragraphs = contentMetaDataMap.paragraphs;
+		paragraphs = contentMetaDataMap["speakables"];
+		var title = contentMetaDataMap["title"];
 		
 		// create and embed audio tags into these paragraphs
 		for(var i=0;i<paragraphs.length;i++){
