@@ -5,14 +5,14 @@ import java.security.MessageDigest
 import java.util.Base64
 import javax.inject.Inject
 
-import akka.actor.{ActorRef, Props}
+import akka.actor.ActorRef
 import akka.util.Timeout
 import akka.pattern.ask
 import com.google.inject.name.Named
 import com.redis.RedisClient
 import org.venustus.samantha.speech.SpeechSynthesisEngine
 import org.venustus.samantha.speech.articles.ArticleAssembler.AssembleArticleFromUrl
-import org.venustus.samantha.speech.articles.{SequentialArticleAssembler, Speakable, Article}
+import org.venustus.samantha.speech.articles.{Speakable, Article}
 import play.api.Play
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.ws.WSClient
@@ -29,7 +29,9 @@ import scala.concurrent.duration._
 import javax.inject.Singleton
 
 @Singleton
-class Application @Inject() (ws: WSClient, sse: SpeechSynthesisEngine, @Named("assembler") assembler: ActorRef)
+class Application @Inject() (ws: WSClient,
+                             sse: SpeechSynthesisEngine,
+                             @Named("assembler-router") assembler: ActorRef)
                             (implicit ec: ExecutionContext) extends Controller {
 
     implicit val timeout = Timeout(10 seconds)
@@ -81,7 +83,7 @@ class Application @Inject() (ws: WSClient, sse: SpeechSynthesisEngine, @Named("a
     }
 
     def ttswid(id: String) = Action {
-        (speakableCache get id) match {
+        speakableCache get id match {
             case Some(text) =>
                 val audioStream = sse synthesizeSpeech (URLDecoder decode (text, "UTF-8"))
                 (Ok chunked Enumerator.fromStream(audioStream)) withHeaders ("Content-Type" -> "audio/mpeg, audio/x-mpeg, audio/x-mpeg-3, audio/mpeg3")

@@ -11,7 +11,7 @@ import org.venustus.samantha.speech.articles.components._
 /**
  * Created by venkat on 31/07/15.
  */
-class GooseArticleExtractor extends Actor with ArticleExtractor {
+class GooseArticleExtractor extends Actor {
 
     val log = Logging(context.system, this)
 
@@ -25,12 +25,18 @@ class GooseArticleExtractor extends Actor with ArticleExtractor {
             sender() ! ExtractedContent(extractContent(url, rawHtml), priority)
     }
 
-    override def extractContent(url: String, rawHtml: String): Set[ArticleComponent] = {
+    def extractContent(url: String, rawHtml: String): Set[ArticleComponent] = {
         val gooseArticle: GooseArticle = goose extractContent (url, rawHtml)
         Set(Author("Venkat Pedapati"), PublishedDate(new Date()),
             Title(gooseArticle title), Speakables(((gooseArticle paragraphs) map {
             case paragraph => Speakable("text", paragraph.text, paragraph.xpath)
         }).toList))
+    }
+}
+
+object GooseArticleExtractor {
+    trait Factory {
+        def apply(): Actor
     }
 }
 

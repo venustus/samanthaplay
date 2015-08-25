@@ -3,11 +3,12 @@ package org.venustus.samantha.speech.articles
 import akka.actor.Actor
 import akka.event.Logging
 import org.venustus.samantha.speech.articles.ArticleExtractor.{ExtractedContent, ExtractContentFromPage}
+import org.venustus.samantha.speech.articles.components.ArticleComponent
 
 /**
  * Created by venkat on 17/08/15.
  */
-class PublisherGuidanceBasedExtractor extends Actor with ArticleExtractor {
+class PublisherGuidanceBasedExtractor extends Actor {
 
     val log = Logging(context.system, this)
 
@@ -17,8 +18,14 @@ class PublisherGuidanceBasedExtractor extends Actor with ArticleExtractor {
             sender() ! ExtractedContent(extractContent(url, rawHtml), priority)
     }
 
-    override def extractContent(url: String, rawHtml: String) = {
+    def extractContent(url: String, rawHtml: String): Set[ArticleComponent] = {
         Set()
     }
 
+}
+
+object PublisherGuidanceBasedExtractor {
+    trait Factory {
+        def apply(): Actor
+    }
 }
