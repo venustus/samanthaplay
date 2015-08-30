@@ -95,12 +95,12 @@ var BABBLE = (function(){
 		
 		// stops any other audio playing on the page
 		pauseAllMedia();
-		
+
+        // navigate user to the current paragraph
+        highlightCurrentParagraph();
+
 		// plays the audio for the current paragraph
 		paragraphs[status.currentParagraphIndex].audioElem.play();
-		
-		// navigate user to the current paragraph
-		highlightCurrentParagraph();
 	}
 	
 	/**
@@ -134,7 +134,6 @@ var BABBLE = (function(){
 	
 	function getAudioTag(src){
 		var elem = document.createElement("audio");
-		elem.setAttribute("autoplay", false);
 		elem.setAttribute("src", src);
 		
 		// this attribute helps us identify that it was added by BABBLE
@@ -142,8 +141,9 @@ var BABBLE = (function(){
 		
 		// add call back to play the next audio
 		elem.addEventListener("ended", function(){
+			console.log("Done playing paragraph no " + status.currentParagraphIndex);
 			playNextParagraph();
-		})
+		});
 		
 		return elem;
 	}
@@ -178,6 +178,23 @@ var BABBLE = (function(){
 		var paragraphElem = document.evaluate(paragraph.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 		paragraphElem.appendChild(audioElem);
 		paragraph.audioElem = audioElem;
+	}
+
+	function playIntroduction(introductionAudioUrl) {
+		var elem = document.createElement("audio");
+		elem.setAttribute("src", introductionAudioUrl);
+
+		// this attribute helps us identify that it was added by BABBLE
+		elem.setAttribute("data", BABBLE_AUDIO_IDENTIFIER);
+
+		// add call back to play the next audio
+		elem.addEventListener("ended", function(){
+			console.log("Introduction ended");
+			playCurrentParagraph();
+		});
+		document.body.appendChild(elem);
+        elem.play();
+		return elem;
 	}
 	
 	/**
@@ -232,10 +249,9 @@ var BABBLE = (function(){
 		for(var i=0;i<paragraphs.length;i++){
 			prepareAudioForParagraph(paragraphs[i]);
 		}
-		
-		// play the first paragraph
-		playCurrentParagraph();
-		
+
+		console.log("Preparing and playing introduction");
+        playIntroduction(contentMetaDataMap["introductionAudioUrl"]);
 	}
 	
 	return {
@@ -245,6 +261,8 @@ var BABBLE = (function(){
 	
 })();
 
+/*
 window.onload = function(){
 	BABBLE.init();
 };
+*/

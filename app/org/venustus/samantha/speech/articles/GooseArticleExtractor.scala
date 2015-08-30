@@ -27,8 +27,7 @@ class GooseArticleExtractor extends Actor {
 
     def extractContent(url: String, rawHtml: String): Set[ArticleComponent] = {
         val gooseArticle: GooseArticle = goose extractContent (url, rawHtml)
-        Set(Author("Venkat Pedapati"), PublishedDate(new Date()),
-            Title(gooseArticle title), Speakables(((gooseArticle paragraphs) map {
+        Set(Title(gooseArticle title), Speakables(((gooseArticle paragraphs) map {
             case paragraph => Speakable("text", paragraph.text, paragraph.xpath)
         }).toList))
     }

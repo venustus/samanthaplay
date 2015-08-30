@@ -20,6 +20,7 @@ class SamanthaPlayModule extends AbstractModule with AkkaGuiceSupport {
         bindActorFactory[GooseArticleExtractor, GooseArticleExtractor.Factory]
         bindActorFactory[ReadabilityExtractor, ReadabilityExtractor.Factory]
         bindActorFactory[PublisherGuidanceBasedExtractor, PublisherGuidanceBasedExtractor.Factory]
+        bindActorFactory[EmbedlyArticleExtractor, EmbedlyArticleExtractor.Factory]
         bindActorFactory[SequentialArticleAssembler, SequentialArticleAssembler.Factory]
         bindActor[AssemblerRouter]("assembler-router")
         val speechCloudClient = new IvonaSpeechCloudClient(

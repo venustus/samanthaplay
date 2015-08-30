@@ -10,9 +10,10 @@ import akka.util.Timeout
 import akka.pattern.ask
 import com.google.inject.name.Named
 import com.redis.RedisClient
+import org.ocpsoft.prettytime.PrettyTime
 import org.venustus.samantha.speech.SpeechSynthesisEngine
 import org.venustus.samantha.speech.articles.ArticleAssembler.AssembleArticleFromUrl
-import org.venustus.samantha.speech.articles.{Speakable, Article}
+import org.venustus.samantha.speech.articles.{EmptyArticle, Speakable, Article}
 import play.api.Play
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.ws.WSClient
@@ -43,6 +44,8 @@ class Application @Inject() (ws: WSClient,
     */
     val speakableCache = mutable.Map[String, String]()
 
+    val prettyTime = new PrettyTime()
+
     def index = Action {
         Ok(views.html.index("Your new application is ready."))
     }
@@ -66,13 +69,29 @@ class Application @Inject() (ws: WSClient,
             )
         }
         implicit val articleWrites = new Writes[Article] {
-            def writes(a: Article) = Json.obj(
-                "speakables" -> a.speakables,
-                "title" -> a.title
-            )
+            def writes(a: Article) = {
+                var jsObj = Json.obj("speakables" -> a.speakables)
+                if(a.title.isDefined) jsObj = jsObj + ("title" -> JsString(a.title.get))
+                if(a.author.isDefined) jsObj = jsObj + ("author" -> JsString(a.author.get))
+                if(a.publishedDate.isDefined) jsObj = jsObj + ("published" -> JsString(prettyTime format a.publishedDate.get))
+                if(a.title.isDefined) jsObj = jsObj + (
+                    "introductionAudioUrl" -> {
+                        var introductionText = a.title.get
+                        if(a.author.isDefined) introductionText = introductionText + ". Written by " + a.author.get
+                        if(a.publishedDate.isDefined) introductionText = introductionText + ". Published " + (prettyTime format a.publishedDate.get)
+                        val textKey = getBase64EncodedHash(introductionText)
+                        speakableCache put(textKey, introductionText)
+                        JsString("//" + request.host + "/ttswid/" + textKey)
+                    }
+                )
+                jsObj
+            }
         }
         (assembler ? AssembleArticleFromUrl(url)) map {
-            case article: Article => Ok((if(jsonp) "BABBLE.kickStart(" else "") + Json.toJson(article).toString + (if(jsonp) ")" else "")).withHeaders("Content-Type" -> "application/javascript")
+            case article: Article => Ok(
+                (if(jsonp) "BABBLE.kickStart(" else "") + Json.toJson(article).toString + (if(jsonp) ")" else "")
+            ).withHeaders("Content-Type" -> "application/javascript")
+            case EmptyArticle => InternalServerError
         }
     }
 

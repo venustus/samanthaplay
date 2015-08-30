@@ -2,18 +2,22 @@ package org.venustus.samantha.speech.articles
 
 import java.util.Date
 
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{Cancellable, ActorRef, Actor}
 import akka.event.Logging
 import akka.routing.{RoundRobinRoutingLogic, Router, ActorRefRoutee}
 import com.google.inject.name.Named
 import com.google.inject.Inject
 import org.venustus.samantha.speech.articles.ArticleAssembler.AssembleArticleFromUrl
 import org.venustus.samantha.speech.articles.ArticleExtractor.{ExtractedContent, ExtractContentFromPage}
+import org.venustus.samantha.speech.articles.SequentialArticleAssembler.ExtractorTimedOut
 import org.venustus.samantha.speech.articles.components.{Speakables, PublishedDate, Title, Author}
 import play.api.libs.ws.{WS, WSClient}
 import play.api.Play.current
+import play.api.libs.concurrent.Akka
 
 import play.api.libs.concurrent.InjectedActorSupport
+
+import scala.concurrent.duration._
 
 /**
  * Created by venkat on 16/08/15.
@@ -22,6 +26,7 @@ class SequentialArticleAssembler @Inject() (wsClient: WSClient,
                                             gooseFactory: GooseArticleExtractor.Factory,
                                             customFactory: PublisherGuidanceBasedExtractor.Factory,
                                             readabilityFactory: ReadabilityExtractor.Factory,
+                                            embedlyFactory: EmbedlyArticleExtractor.Factory,
                                             @Named("extractorCount") extractorRouteeCount: Int) extends Actor
         with InjectedActorSupport {
 
@@ -41,7 +46,7 @@ class SequentialArticleAssembler @Inject() (wsClient: WSClient,
     var author: Option[(String, Int)] = None
     var publishedDate: Option[(Date, Int)] = None
     var allSpeakables: Option[(List[Speakable], Int)] = None
-    var numResponses = 0
+    var extractorTimeoutCancellable: Option[Cancellable] = None
 
     def getRouter(actors: Seq[ActorRef]): Router = {
         val routees = actors map { case r =>
@@ -60,6 +65,9 @@ class SequentialArticleAssembler @Inject() (wsClient: WSClient,
         }),
         getRouter((1 to extractorRouteeCount) map { case i =>
             injectedChild(readabilityFactory(), "readability-" + i )
+        }),
+        getRouter((1 to extractorRouteeCount) map { case i =>
+            injectedChild(embedlyFactory(), "embedly-" + i)
         })
     )
 
@@ -79,35 +87,50 @@ class SequentialArticleAssembler @Inject() (wsClient: WSClient,
             currentSender = Some(sender())
             log info "Sent extraction commands to all routees"
             log info "now listening for responses"
+            extractorTimeoutCancellable = Some(Akka.system.scheduler.scheduleOnce(5 seconds, self, ExtractorTimedOut))
             context become listenForResponses
     }
 
     def listenForResponses: Receive = {
+        case ExtractorTimedOut =>
+            log info "Time out while waiting for responses from all extractors"
+            wrapUpAndListenForRequests()
         case ExtractedContent(components, priority) =>
             log info "Received response from " + sender()
             components foreach {
                 case Title(t) =>
                     if(title.isEmpty || title.get._2 > priority) title = Some(t, priority)
-                case Author(a) =>
+                case Author(a, _) =>
                     if(author.isEmpty || author.get._2 > priority) author = Some(a, priority)
                 case PublishedDate(d) =>
                     if(publishedDate.isEmpty || publishedDate.get._2 > priority) publishedDate = Some(d, priority)
                 case Speakables(speakables) =>
                     if(allSpeakables.isEmpty || allSpeakables.get._2 > priority) allSpeakables = Some(speakables, priority)
             }
-            numResponses = numResponses + 1
-            if(title.isDefined && author.isDefined && publishedDate.isDefined && allSpeakables.isDefined &&
-                numResponses == numExtractors && currentSender.isDefined) {
-                currentSender.get ! Article(title.get._1, publishedDate.get._1, author.get._1, allSpeakables.get._1)
-                currentSender = None
-                numResponses = 0
-                title = None
-                author = None
-                publishedDate = None
-                allSpeakables = None
-                context become listenForNewRequests
+            if(allSpeakables.isDefined && title.isDefined && author.isDefined && publishedDate.isDefined
+                && currentSender.isDefined) {
+                wrapUpAndListenForRequests()
             }
+    }
 
+    private def wrapUpAndListenForRequests() = {
+        if(extractorTimeoutCancellable.isDefined && !extractorTimeoutCancellable.get.isCancelled) extractorTimeoutCancellable.get cancel()
+        if(allSpeakables.isDefined) {
+            currentSender.get ! Article(title map (_._1),
+                publishedDate map (_._1),
+                author map (_._1),
+                allSpeakables.get._1)
+        }
+        else {
+            currentSender.get ! EmptyArticle
+        }
+        currentSender = None
+        title = None
+        author = None
+        publishedDate = None
+        allSpeakables = None
+        extractorTimeoutCancellable = None
+        context become listenForNewRequests
     }
 }
 
@@ -115,4 +138,5 @@ object SequentialArticleAssembler {
     trait Factory {
         def apply(): Actor
     }
+    case object ExtractorTimedOut
 }

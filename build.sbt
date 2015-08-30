@@ -22,6 +22,8 @@ libraryDependencies += "commons-lang" % "commons-lang" % "2.6"
 
 libraryDependencies += "net.debasishg" %% "redisreact" % "0.7"
 
+libraryDependencies += "org.ocpsoft.prettytime" % "prettytime" % "3.2.7.Final"
+
 libraryDependencies += specs2 % Test
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
