@@ -7,6 +7,7 @@ import com.google.inject.{Singleton, Provides, Inject, AbstractModule}
 import com.gravity.goose.{Goose, Configuration}
 import com.ivona.services.tts.IvonaSpeechCloudClient
 import org.venustus.samantha.speech.articles._
+import org.venustus.samantha.speech.cache.{TranscriptStore, TranscriptStoreRouter, TranscriptCreator}
 import play.api.libs.concurrent.AkkaGuiceSupport
 
 
@@ -22,7 +23,10 @@ class SamanthaPlayModule extends AbstractModule with AkkaGuiceSupport {
         bindActorFactory[PublisherGuidanceBasedExtractor, PublisherGuidanceBasedExtractor.Factory]
         bindActorFactory[EmbedlyArticleExtractor, EmbedlyArticleExtractor.Factory]
         bindActorFactory[SequentialArticleAssembler, SequentialArticleAssembler.Factory]
+        bindActorFactory[TranscriptStore, TranscriptStore.Factory]
+        bindActorFactory[TranscriptCreator, TranscriptCreator.Factory]
         bindActor[AssemblerRouter]("assembler-router")
+        bindActor[TranscriptStoreRouter]("store-router")
         val speechCloudClient = new IvonaSpeechCloudClient(
             new ClasspathPropertiesFileCredentialsProvider("ivona/IvonaCredentials.properties"))
         speechCloudClient setEndpoint "https://tts.eu-west-1.ivonacloud.com"

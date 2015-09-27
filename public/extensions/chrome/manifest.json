@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+
+  "name": "Babble",
+  "description": "Listen to beautiful voices speaking out web page contents for you",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "images/speak-icon.png",
+    "default_title": "Babble this page"
+  },
+  "background": {
+    "scripts": ["scripts/eventPage.js"],
+    "persistent": true
+  },
+  "permissions": [
+    "activeTab",
+    "http://127.0.0.1:9000/",
+    "http://ec2-52-27-159-241.us-west-2.compute.amazonaws.com/"
+  ]
+}
