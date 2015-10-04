@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Author</key>
+	<string>Venkata Rao Pedapati</string>
+	<key>Builder Version</key>
+	<string>11601.1.56</string>
+	<key>CFBundleDisplayName</key>
+	<string>babble</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.venustus.babble</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>Chrome</key>
+	<dict>
+		<key>Global Page</key>
+		<string>global.html</string>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Command</key>
+				<string>speak</string>
+				<key>Identifier</key>
+				<string>babble-speak</string>
+				<key>Image</key>
+				<string>babble-icon-transparent.png</string>
+				<key>Include By Default</key>
+				<true/>
+				<key>Label</key>
+				<string>Babble</string>
+			</dict>
+		</array>
+	</dict>
+	<key>Companion Bundle Identifier</key>
+	<array/>
+	<key>Content</key>
+	<dict>
+		<key>Scripts</key>
+		<dict>
+			<key>End</key>
+			<array>
+				<string>content.js</string>
+			</array>
+		</dict>
+	</dict>
+	<key>Description</key>
+	<string>Listen to beautiful voices speak out web pages aloud</string>
+	<key>DeveloperIdentifier</key>
+	<string>2364CWAQ9Y</string>
+	<key>ExtensionInfoDictionaryVersion</key>
+	<string>1.0</string>
+	<key>Permissions</key>
+	<dict>
+		<key>Website Access</key>
+		<dict>
+			<key>Include Secure Pages</key>
+			<true/>
+			<key>Level</key>
+			<string>All</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

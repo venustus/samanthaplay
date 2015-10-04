@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+    <script type="text/javascript">
+        function performCommand(event) {
+            if(event.command = "speak") {
+                safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("babble-kickstart", "data");
+            }
+        }
+        safari.application.addEventListener("command", performCommand, false);
+    </script>
+
+</body>
+</html>
