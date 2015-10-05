@@ -13,5 +13,7 @@ function handleMessage(msgEvent) {
     }
 }
 
-safari.self.addEventListener("message", handleMessage, false);
+if(window.top == window) {
+    safari.self.addEventListener("message", handleMessage, false);
+}
 
