@@ -3,9 +3,10 @@ var BABBLE = (function(){
 	'use strict';
 	
 	// constants
+	var BABBLE_SERVER_ENDPOINT = "http://ec2-52-27-159-241.us-west-2.compute.amazonaws.com";
 	var BABBLE_AUDIO_IDENTIFIER = "owner:BABBLE";
 	var BABBLE_CONTENT_IDENTIFIER = "owner:BABBLE";
-	var BABBLE_SERVER_SCRIPT_PREFIX = "http://ec2-52-27-159-241.us-west-2.compute.amazonaws.com/utp/";
+	var BABBLE_SERVER_SCRIPT_PREFIX = BABBLE_SERVER_ENDPOINT + "/utp/";
 	var DEBUG = true;
 	
 	// properties with USER prefix will be available for the end consumer to configure
@@ -49,6 +50,50 @@ var BABBLE = (function(){
 	}
 	
 	/**
+	* Highlights the current paragraph based on user preference set into variable USER_NAVIGATE
+	*/
+	function highlightCurrentParagraph(){
+		var paragraph = paragraphs[status.currentParagraphIndex];
+		if(USER_NAVIGATE){
+
+			var paragraphElem = getElementFromXpath(paragraph.xpath);
+			
+			var previousParagraphIndex = ((status.currentParagraphIndex - 1) < 0)? paragraphs.length-1: (status.currentParagraphIndex - 1);
+			
+			// TODO: fade out the previous paragraph
+			var previousParagraph = paragraphs[previousParagraphIndex];
+			var previousParagraphElem = getElementFromXpath(previousParagraph.xpath);
+
+			if(previousParagraphElem){
+				// Rest the previous paragraph
+				previousParagraphElem.style.backgroundColor = "";
+			}
+
+			if(paragraphElem){
+				// set the current paragraph's style
+				paragraphElem.style.backgroundColor = "yellow";
+			}
+		}
+		
+	}
+	
+	/**
+	* Unhighlights the current paragraph based on user preference set into variable USER_NAVIGATE
+	*/
+	function unHighlightCurrentParagraph(){
+		var paragraph = paragraphs[status.currentParagraphIndex];
+		if(USER_NAVIGATE){
+			var paragraphElem = getElementFromXpath(paragraph.xpath);
+
+			if(paragraphElem){
+				// Rest the paragraph
+				paragraphElem.style.backgroundColor = "";
+			}
+		}
+		
+	}
+	
+	/**
 	* plays the current paragraph FROM THE START
 	* NOTE: this function ensures that only one media (of the current paragraph) is being played at any given point in time
 	*/
@@ -58,6 +103,9 @@ var BABBLE = (function(){
 		
 		// stops any other audio playing on the page
 		pauseAllMedia();
+
+        // navigate user to the current paragraph
+        highlightCurrentParagraph();
 
 		// plays the audio for the current paragraph
 		paragraphs[status.currentParagraphIndex].audioElem.play();
@@ -75,7 +123,10 @@ var BABBLE = (function(){
 		status.currentParagraphIndex++;
 		
 		if(status.currentParagraphIndex >= paragraphs.length){
-
+			// Do clean up
+			// unhighlight current paragraph
+			unHighlightCurrentParagraph();
+			
 			status.currentParagraphIndex = status.currentParagraphIndex % paragraphs.length;
 				
 		} else {
@@ -132,13 +183,56 @@ var BABBLE = (function(){
 	 */
 	function prepareAudioForParagraph(paragraph){
 		var audioElem = getAudioTag(paragraph.audioUrl);
-		document.body.appendChild(audioElem);
+		var paragraphElem = getElementFromXpath(paragraph.xpath) || document.body;
+		paragraphElem.appendChild(audioElem);
 		paragraph.audioElem = audioElem;
 	}
 
 	/**
+	 * Returns dom element given an xpath
+	 * */
+
+	function getElementFromXpath(xpath){
+		var elem = null;
+		try {
+			elem = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+		}
+		catch(err) {
+			log("Could not resolve xpath"+err);
+		}
+		return elem;
+	}
+
+	function playIntroduction(introductionAudioUrl) {
+		var elem = document.createElement("audio");
+		elem.setAttribute("src", introductionAudioUrl);
+
+		// this attribute helps us identify that it was added by BABBLE
+		elem.setAttribute("data", BABBLE_AUDIO_IDENTIFIER);
+
+		// add call back to play the next audio
+		elem.addEventListener("ended", function(){
+			console.log("Introduction ended");
+			playCurrentParagraph();
+		});
+		document.body.appendChild(elem);
+        elem.play();
+		return elem;
+	}
+	
+	/**
 	* set data attribute for the tags modified by BABBLE
 	*/
+	
+	function tagParagraph(paragraph){
+
+		var paragraphElem = getElementFromXpath(paragraph.xpath)
+
+		if(paragraphElem){
+			// this attribute helps us identify that it was added by BABBLE
+			paragraphElem.setAttribute("data", BABBLE_CONTENT_IDENTIFIER);
+		}
+	}
 	
 	// Public Methods
 
@@ -181,7 +275,9 @@ var BABBLE = (function(){
 			prepareAudioForParagraph(paragraphs[i]);
 		}
 
-        playCurrentParagraph();
+		//log("Preparing and playing introduction");
+        //playIntroduction(contentMetaDataMap["introductionAudioUrl"]);
+		playCurrentParagraph();
 	}
 	
 	return {
@@ -190,5 +286,11 @@ var BABBLE = (function(){
 	};
 	
 })();
+
+/*
+window.onload = function(){
+	BABBLE.init();
+};
+*/
 
 BABBLE.init();
