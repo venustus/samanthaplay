@@ -107,8 +107,7 @@ class SequentialArticleAssembler @Inject() (wsClient: WSClient,
                 case Speakables(speakables) =>
                     if(allSpeakables.isEmpty || allSpeakables.get._2 > priority) allSpeakables = Some(speakables, priority)
             }
-            if(allSpeakables.isDefined && title.isDefined && author.isDefined && publishedDate.isDefined
-                && currentSender.isDefined) {
+            if(allSpeakables.isDefined && title.isDefined && currentSender.isDefined) {
                 wrapUpAndListenForRequests()
             }
     }

@@ -5,7 +5,7 @@ var BABBLE = (function(){
 	// constants
 	var BABBLE_AUDIO_IDENTIFIER = "owner:BABBLE";
 	var BABBLE_CONTENT_IDENTIFIER = "owner:BABBLE";
-	var BABBLE_SERVER_SCRIPT_PREFIX = "http://ec2-52-27-159-241.us-west-2.compute.amazonaws.com/utp/";
+	var BABBLE_SERVER_SCRIPT_PREFIX = "http://localhost:9000/utp/";
 	var DEBUG = true;
 	
 	// properties with USER prefix will be available for the end consumer to configure
