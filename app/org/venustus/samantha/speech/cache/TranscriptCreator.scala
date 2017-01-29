@@ -1,14 +1,14 @@
 package org.venustus.samantha.speech.cache
 
+import java.io.BufferedInputStream
 import java.net.URLDecoder
 
 import akka.actor.Actor
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider
-import com.amazonaws.services.s3.model.{CannedAccessControlList, ObjectMetadata, PutObjectRequest, AmazonS3Exception}
+import com.amazonaws.services.s3.model.{AmazonS3Exception, CannedAccessControlList, ObjectMetadata, PutObjectRequest}
 import com.google.inject.Inject
 import org.venustus.samantha.speech.SpeechSynthesisEngine
-import org.venustus.samantha.speech.cache.TranscriptCreator.{Done, CreateTranscript}
-
+import org.venustus.samantha.speech.cache.TranscriptCreator.{CreateTranscript, Done}
 import com.amazonaws.services.s3.AmazonS3Client
 
 /**
@@ -16,7 +16,7 @@ import com.amazonaws.services.s3.AmazonS3Client
  */
 class TranscriptCreator @Inject() (sse: SpeechSynthesisEngine) extends Actor {
 
-    val bucketName = "babble-transcripts"
+    val bucketName = "samantha-transcripts"
     val amazonS3Client = new AmazonS3Client(new ClasspathPropertiesFileCredentialsProvider("aws/transcriptstoreadmin.properties"))
 
     def receive = {
@@ -25,9 +25,10 @@ class TranscriptCreator @Inject() (sse: SpeechSynthesisEngine) extends Actor {
                 val audioStream = sse synthesizeSpeech (URLDecoder decode (text, "UTF-8"))
                 val om = new ObjectMetadata
                 om setContentType "audio/mpeg"
-                val por = new PutObjectRequest(bucketName, domain + "/" + key, audioStream, om)
+                val por = new PutObjectRequest(bucketName, domain + "/" + key, new BufferedInputStream(audioStream), om)
                 por setCannedAcl CannedAccessControlList.PublicRead
-                amazonS3Client putObject new PutObjectRequest(bucketName, domain + "/" + key, audioStream, om)
+                (por getRequestClientOptions) setReadLimit 1000000
+                amazonS3Client putObject por
                 sender() ! Done
             }
         }

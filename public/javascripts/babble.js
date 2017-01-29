@@ -3,7 +3,7 @@ var BABBLE = (function(){
 	'use strict';
 	
 	// constants
-	var BABBLE_SERVER_ENDPOINT = "http://ec2-52-27-159-241.us-west-2.compute.amazonaws.com";
+	var BABBLE_SERVER_ENDPOINT = "http://ec2-54-200-161-20.us-west-2.compute.amazonaws.com";
 	var BABBLE_AUDIO_IDENTIFIER = "owner:BABBLE";
 	var BABBLE_CONTENT_IDENTIFIER = "owner:BABBLE";
 	var BABBLE_SERVER_SCRIPT_PREFIX = BABBLE_SERVER_ENDPOINT + "/utp/";

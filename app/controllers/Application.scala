@@ -61,7 +61,7 @@ class Application @Inject() (ws: WSClient,
 
     def getDomainFromUrl(url: String) = new URL(url).getHost
 
-    def utp(url: String, jsonp: Boolean = true) = Action.async {
+    def utp(url: String, jsonp: Boolean = true): Action[AnyContent] = Action.async {
         def getUpdatedArticle(articleFuture: Future[Article]) = {
             articleFuture flatMap { case article =>
                 val articleWithIntroduction = {
@@ -93,7 +93,7 @@ class Application @Inject() (ws: WSClient,
         Ok.chunked(Enumerator.fromStream(audioStream)).withHeaders("Content-Type" -> "audio/mpeg, audio/x-mpeg, audio/x-mpeg-3, audio/mpeg3")
     }
 
-    def ttswid(id: String) = Action.async {
+    def ttswid(id: String): Action[AnyContent] = Action.async {
         request => {
             (store ? Retrieve(request.headers.get("Referer").get, id)) map {
                 case AudioStream(in) =>
